@@ -1,0 +1,209 @@
+{% extends "base.twig" %}
+  
+{% block content %}
+{{ parent() }}
+<h2><span class="icon icon-envelop"></span>メール配信履歴</h2>
+
+<form action="" method="post">
+<input type="hidden" name="mode" value="search">
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<table class="search">
+<tr>
+<th class="w20">メール配信ID</th>
+<td class="w30"><input type="text" id="search_id" name="search_id" value="{{ search.search_id }}"></td>
+<th class="w20">フリーワード</th>
+<td class="w30"><input type="text" id="search_keyword" name="search_keyword" value="{{ search.search_keyword }}"></td>
+</tr>
+<tr>
+<th class="w20">メール形式</th>
+<td class="w30">
+<label class="checkbox_text">
+<input type="checkbox" name="search_delivery_type[]" value="{{ config_get( 'product.mail_delivery.delivery_type.text.id' ) }}"
+{% for value in search.search_delivery_type %}
+{% if value == config_get( 'product.mail_delivery.delivery_type.text.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.delivery_type.text.name' ) }}
+</label>
+<label class="checkbox_text">
+<input type="checkbox" name="search_delivery_type[]" value="{{ config_get( 'product.mail_delivery.delivery_type.html.id' ) }}"
+{% for value in search.search_delivery_type %}
+{% if value == config_get( 'product.mail_delivery.delivery_type.html.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.delivery_type.html.name' ) }}
+</label>
+</td>
+<th class="w20">配信設定</th>
+<td class="w30">
+<label class="checkbox_text">
+<input type="checkbox" name="search_reserve_flg[]" value="{{ config_get( 'product.mail_delivery.reserve_flg.on.id' ) }}"
+{% for value in search.search_reserve_flg %}
+{% if value == config_get( 'product.mail_delivery.reserve_flg.on.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.reserve_flg.on.name' ) }}
+</label>
+<label class="checkbox_text">
+<input type="checkbox" name="search_reserve_flg[]" value="{{ config_get( 'product.mail_delivery.reserve_flg.off.id' ) }}"
+{% for value in search.search_reserve_flg %}
+{% if value == config_get( 'product.mail_delivery.reserve_flg.off.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.reserve_flg.off.name' ) }}
+</label>
+</td>
+</tr>
+<tr>
+<th class="w20">ステータス</th>
+<td class="w80" colspan="3">
+<label class="checkbox_text">
+<input type="checkbox" name="search_status[]" value="{{ config_get( 'product.mail_delivery.delivery_status.edit.id' ) }}"
+{% for value in search.search_status %}
+{% if value == config_get( 'product.mail_delivery.delivery_status.edit.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.delivery_status.edit.name' ) }}
+</label>
+<label class="checkbox_text">
+<input type="checkbox" name="search_status[]" value="{{ config_get( 'product.mail_delivery.delivery_status.wait.id' ) }}"
+{% for value in search.search_status %}
+{% if value == config_get( 'product.mail_delivery.delivery_status.wait.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.delivery_status.wait.name' ) }}
+</label>
+<label class="checkbox_text">
+<input type="checkbox" name="search_status[]" value="{{ config_get( 'product.mail_delivery.delivery_status.progress.id' ) }}"
+{% for value in search.search_status %}
+{% if value == config_get( 'product.mail_delivery.delivery_status.progress.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.delivery_status.progress.name' ) }}
+</label>
+<label class="checkbox_text">
+<input type="checkbox" name="search_status[]" value="{{ config_get( 'product.mail_delivery.delivery_status.ok.id' ) }}"
+{% for value in search.search_status %}
+{% if value == config_get( 'product.mail_delivery.delivery_status.ok.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.delivery_status.ok.name' ) }}
+</label>
+<label class="checkbox_text">
+<input type="checkbox" name="search_status[]" value="{{ config_get( 'product.mail_delivery.delivery_status.cancel.id' ) }}"
+{% for value in search.search_status %}
+{% if value == config_get( 'product.mail_delivery.delivery_status.cancel.id' ) %}checked='checked'{% endif %}
+{% endfor %}
+>{{ config_get( 'product.mail_delivery.delivery_status.cancel.name' ) }}
+</label>
+</td>
+</tr>
+</table>
+<div class="btn">
+<input type="submit" value="search">
+</div>
+</form>
+
+{% if data.total > 0 %}
+<div class="btn_area">
+<input type="button" class="warn" value="選択したものを削除する" onclick="setModeAndSubmit( 'delete', '', '' ); return false;">
+<input type="button" value="新規登録" onclick="location.href='/mail/new';">
+</div>
+{% else %}
+<div class="btn_area">
+<input type="button" value="新規登録" onclick="location.href='/mail/new';">
+</div>
+{% endif %}
+
+{% if data.total > 0 %}
+<form action="" name="form1" method="post">
+<input type="hidden" name="mode" value="">
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<table class="list">
+<tr>
+<th class="w5">
+<label class="checkbox">
+<input type="checkbox" id="all" name="all" value="1">
+</label>
+</th>
+<th class="w5">ID</th>
+<th class="w30">タイトル</th>
+<th class="w10">メール形式</th>
+<th class="w10">配信設定</th>
+<th class="w10">予約配信日時</th>
+<th class="w10">配信完了日時</th>
+<th class="w10">開封/配信</th>
+<th class="w10">ステータス</th>
+</tr>
+{% for item in data.list %}
+<tr {% if 0 == loop.index % 2 %}class="even"{% endif%} data-href="/mail/detail/{{ item.id }}">
+<td>
+<label class="checkbox">
+<input type="checkbox" name="mail_delivery_ids[]" value="{{ item.id }}">
+</label>
+</td>
+<td>{{ item.id }}</td>
+<td>{{ item.title }}</td>
+<td>
+{% if config_get( 'product.mail_delivery.delivery_type.text.id' ) == item.delivery_type %}
+{{ config_get( 'product.mail_delivery.delivery_type.text.name' ) }}
+{% else %}
+{{ config_get( 'product.mail_delivery.delivery_type.html.name' ) }}
+{% endif %}
+</td>
+<td>
+{% if config_get( 'product.mail_delivery.reserve_flg.on.id' ) == item.reserve_flg %}
+{{ config_get( 'product.mail_delivery.reserve_flg.on.name' ) }}
+{% else %}
+{{ config_get( 'product.mail_delivery.reserve_flg.off.name' ) }}
+{% endif %}
+</td>
+<td>
+{% if config_get( 'product.mail_delivery.reserve_flg.on.id' ) == item.reserve_flg %}
+{{ item.reserve_date }}
+{% else %}
+---
+{% endif %}
+</td>
+<td>
+{% if '' != item.delivery_date %}
+{{ item.delivery_date }}
+{% else %}
+---
+{% endif %}
+</td>
+<td>
+{% if config_get( 'product.mail_delivery.delivery_status.ok.id' ) == item.status and
+      config_get( 'product.mail_delivery.delivery_type.html.id' ) == item.delivery_type %}
+{{ item.open_count }} / {{ item.delivery_count }}
+{% else %}
+---
+{% endif %}
+</td>
+<td>
+{% if config_get( 'product.mail_delivery.delivery_status.edit.id' ) == item.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.edit.name' ) }}
+{% elseif config_get( 'product.mail_delivery.delivery_status.wait.id' ) == item.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.wait.name' ) }}
+{% elseif config_get( 'product.mail_delivery.delivery_status.progress.id' ) == item.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.progress.name' ) }}
+{% elseif config_get( 'product.mail_delivery.delivery_status.ok.id' ) == item.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.ok.name' ) }}
+{% elseif config_get( 'product.mail_delivery.delivery_status.cancel.id' ) == item.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.cancel.name' ) }}
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</table>
+</form>
+
+{% include 'common/pager.twig' %}
+{% endif %}
+
+{% if data.total == 0 %}
+<div class="message">
+登録されている情報はありません。
+</div>
+{% endif %}
+
+
+{% endblock %}
+
+{% block js %}
+{{ parent() }}
+<script type="text/javascript" src="/js/common.js?{{ time }}"></script>
+<script type="text/javascript" src="/js/mail_delivery.js?{{ time }}"></script>
+{% endblock %}

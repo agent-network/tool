@@ -1,0 +1,33 @@
+{% extends "base.twig" %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+{{ parent() }}
+<div id="login">
+
+<h1><img src="/images/login_logo.png" alt="round quality" style="width:250px;"></h1>
+
+<form action="" method="post">
+<input type="hidden" name="mode" value="login">
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<div>
+<input type="text" id="" name="email" value="" placeholder="メールアドレス">
+{% if message != '' %}
+<p class="error">メールアドレス又はパスワードが一致しませんでした。</p>
+{% endif %}
+</div>
+<div>
+<input type="password" id="" name="password" value="" placeholder="パスワード">
+</div>
+<div class="btn">
+<input type="submit" id="" name="" value="login">
+</div>
+</form>
+
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

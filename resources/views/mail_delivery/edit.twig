@@ -1,0 +1,275 @@
+{% extends "base.twig" %}
+  
+{% block content %}
+{{ parent() }}
+{% if '' != mail_delivery_id %}
+<h2><span class="icon icon-envelop"></span>メール配信 - 編集</h2>
+{% else %}
+<h2><span class="icon icon-envelop"></span>メール配信 - 新規登録</h2>
+{% endif %}
+
+<form action="" name="form1" method="post" enctype="multipart/form-data">
+<input type="hidden" name="mode" value="commit">
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<table class="detail">
+{% if '' != data.id %}
+<tr>
+<th>ID</th>
+<td>{{ data.id }}</td>
+</tr>
+{% endif %}
+<tr>
+<th>送信元<br>メールアドレス</th>
+<td>
+<label class="radio_text">
+<input type="radio" name="from_email" value="{{ config_get( 'product.mail.common.from.address' ) }}"
+{% if config_get( 'product.mail.common.from.address' ) == data.from_email %}checked='checked'{% endif %}
+>{{ config_get( 'product.mail.common.from.address' ) }}
+</label>
+<br>
+<label class="radio_text">
+<input type="radio" name="from_email" value="{{ setting.user.email }}"
+{% if setting.user.email == data.from_email %}checked='checked'{% endif %}
+>{{ setting.user.email }}
+</label>
+{% if '' != setting.user.sub_email01 %}
+<br>
+<label class="radio_text">
+<input type="radio" name="from_email" value="{{ setting.user.sub_email01 }}"
+{% if setting.user.sub_email01 == data.from_email %}checked='checked'{% endif %}
+>{{ setting.user.sub_email01 }}
+</label>
+{% endif %}
+{% if '' != setting.user.sub_email02 %}
+<br>
+<label class="radio_text">
+<input type="radio" name="from_email" value="{{ setting.user.sub_email02 }}"
+{% if setting.user.sub_email02 == data.from_email %}checked='checked'{% endif %}
+>{{ setting.user.sub_email02 }}
+</label>
+{% endif %}
+{% if '' != errors.from_email %}
+<p class="error">{{ errors.from_email }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>タイトル</th>
+<td>
+<input type="text" id="title" name="title" value="{{ data.title }}" class="w95" placeholder="">
+{% if '' != errors.title %}
+<p class="error">{{ errors.title }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>本文</th>
+<td>
+<textarea id="body" name="body" class="w95">{{ data.body }}</textarea>
+{% if '' != errors.body %}
+<p class="error">{{ errors.body }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>メール形式</th>
+<td>
+<label class="radio_text">
+<input type="radio" name="delivery_type" value="{{ config_get( 'product.mail_delivery.delivery_type.text.id' ) }}"
+{% if config_get( 'product.mail_delivery.delivery_type.text.id' ) == data.delivery_type %}checked='checked'{% endif %}
+>{{ config_get( 'product.mail_delivery.delivery_type.text.name' ) }}
+</label>
+<label class="radio_text">
+<input type="radio" name="delivery_type" value="{{ config_get( 'product.mail_delivery.delivery_type.html.id' ) }}"
+{% if config_get( 'product.mail_delivery.delivery_type.html.id' ) == data.delivery_type %}checked='checked'{% endif %}
+>{{ config_get( 'product.mail_delivery.delivery_type.html.name' ) }}
+</label>
+{% if '' != errors.delivery_type %}
+<p class="error">{{ errors.delivery_type }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>配信設定</th>
+<td>
+<label class="radio_text">
+<input type="radio" name="reserve_flg" value="{{ config_get( 'product.mail_delivery.reserve_flg.on.id' ) }}"
+{% if config_get( 'product.mail_delivery.reserve_flg.on.id' ) == data.reserve_flg %}checked='checked'{% endif %}
+>{{ config_get( 'product.mail_delivery.reserve_flg.on.name' ) }}
+</label>
+<label class="radio_text">
+<input type="radio" name="reserve_flg" value="{{ config_get( 'product.mail_delivery.reserve_flg.off.id' ) }}"
+{% if config_get( 'product.mail_delivery.reserve_flg.off.id' ) == data.reserve_flg %}checked='checked'{% endif %}
+>{{ config_get( 'product.mail_delivery.reserve_flg.off.name' ) }}
+</label>
+{% if '' != errors.reserve_flg %}
+<p class="error">{{ errors.reserve_flg }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>予約配信日時</th>
+<td>
+<select class="w20" id="reserve_year" name="reserve_year">
+<option value=""></option>
+{% for item in years %}
+<option value="{{ item.id }}" {% if item.id == data.reserve_year %}selected='selected'{% endif %}>{{ item.name }}</option>
+{% endfor %}
+</select>年
+<select class="w15" id="reserve_month" name="reserve_month">
+<option value=""></option>
+{% for item in months %}
+<option value="{{ item.id }}" {% if item.id == data.reserve_month %}selected='selected'{% endif %}>{{ item.name }}</option>
+{% endfor %}
+</select>月
+<select class="w15" id="reserve_day" name="reserve_day">
+<option value=""></option>
+{% for item in days %}
+<option value="{{ item.id }}" {% if item.id == data.reserve_day %}selected='selected'{% endif %}>{{ item.name }}</option>
+{% endfor %}
+</select>日
+<select class="w15" id="reserve_hour" name="reserve_hour">
+<option value=""></option>
+{% for item in hours %}
+<option value="{{ item.id }}" {% if data.reserve_hour is same as( item.id ) %}selected='selected'{% endif %}>{{ item.name }}</option>
+{% endfor %}
+</select>時
+<select class="w15" id="reserve_minute" name="reserve_minute">
+<option value=""></option>
+{% for item in minutes %}
+<option value="{{ item.id }}" {% if data.reserve_minute is same as( item.id ) %}selected='selected'{% endif %}>{{ item.name }}</option>
+{% endfor %}
+</select>分
+{% if '' != errors.reserve_year %}
+<p class="error">{{ errors.reserve_year }}</p>
+{% endif %}
+{% if '' != errors.reserve_month %}
+<p class="error">{{ errors.reserve_month }}</p>
+{% endif %}
+{% if '' != errors.reserve_day %}
+<p class="error">{{ errors.reserve_day }}</p>
+{% endif %}
+{% if '' != errors.reserve_hour %}
+<p class="error">{{ errors.reserve_hour }}</p>
+{% endif %}
+{% if '' != errors.reserve_minute %}
+<p class="error">{{ errors.reserve_minute }}</p>
+{% endif %}
+</td>
+</tr>
+
+<tr>
+<th>添付ファイル1</th>
+<td>
+{% if data.attachment_info[0] %}
+<input type="hidden" name="attachment_info[0][original]" value="{{ data.attachment_info[0].original }}">
+<input type="hidden" name="attachment_info[0][save]" value="{{ data.attachment_info[0].save }}">
+<input type="hidden" name="attachment_info[0][mime]" value="{{ data.attachment_info[0].mime }}">
+<input type="hidden" name="attachment_info[0][isimage]" value="{{ data.attachment_info[0].isimage }}">
+<input type="hidden" name="attachment_info[0][path]" value="{{ data.attachment_info[0].path }}">
+<span class="icon icon-file-empty"></span>
+{{ data.attachment_info[0].original }}
+<ul>
+<li>
+<label class="checkbox_text" for="attachment_delete[0]">
+<input type="checkbox" id="attachment_delete[0]" name="attachment_delete[0]" value="1">ファイルを添付しない
+</label>
+</li>
+</ul>
+{% endif %}
+<input type="file" id="attachment[0]" name="attachment[0]" value="{{ data.attachment[0] }}" class="w95" placeholder="">
+{% if '' != errors['attachment.0'] %}
+<p class="error">{{ errors['attachment.0'] }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>添付ファイル2</th>
+<td>
+{% if data.attachment_info[1] %}
+<input type="hidden" name="attachment_info[1][original]" value="{{ data.attachment_info[1].original }}">
+<input type="hidden" name="attachment_info[1][save]" value="{{ data.attachment_info[1].save }}">
+<input type="hidden" name="attachment_info[1][mime]" value="{{ data.attachment_info[1].mime }}">
+<input type="hidden" name="attachment_info[1][isimage]" value="{{ data.attachment_info[1].isimage }}">
+<input type="hidden" name="attachment_info[1][path]" value="{{ data.attachment_info[1].path }}">
+<span class="icon icon-file-empty"></span>
+{{ data.attachment_info[1].original }}
+<ul>
+<li>
+<label class="checkbox_text" for="attachment_delete[1]">
+<input type="checkbox" id="attachment_delete[1]" name="attachment_delete[1]" value="1">ファイルを添付しない
+</label>
+</li>
+</ul>
+{% endif %}
+<input type="file" id="attachment[1]" name="attachment[1]" value="{{ data.attachment[1] }}" class="w95" placeholder="">
+{% if '' != errors['attachment.1'] %}
+<p class="error">{{ errors['attachment.1'] }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>添付ファイル3</th>
+<td>
+{% if data.attachment_info[2] %}
+<input type="hidden" name="attachment_info[2][original]" value="{{ data.attachment_info[2].original }}">
+<input type="hidden" name="attachment_info[2][save]" value="{{ data.attachment_info[2].save }}">
+<input type="hidden" name="attachment_info[2][mime]" value="{{ data.attachment_info[2].mime }}">
+<input type="hidden" name="attachment_info[2][isimage]" value="{{ data.attachment_info[2].isimage }}">
+<input type="hidden" name="attachment_info[2][path]" value="{{ data.attachment_info[2].path }}">
+<span class="icon icon-file-empty"></span>
+{{ data.attachment_info[2].original }}
+<ul>
+<li>
+<label class="checkbox_text" for="attachment_delete[2]">
+<input type="checkbox" id="attachment_delete[2]" name="attachment_delete[2]" value="1">ファイルを添付しない
+</label>
+</li>
+</ul>
+{% endif %}
+<input type="file" id="attachment[2]" name="attachment[2]" value="{{ data.attachment[2] }}" class="w95" placeholder="">
+{% if '' != errors['attachment.2'] %}
+<p class="error">{{ errors['attachment.2'] }}</p>
+{% endif %}
+</td>
+</tr>
+
+<tr>
+<th>配信先CSVファイル</th>
+<td>
+{% if data.csv_info %}
+<input type="hidden" name="csv_info[original]" value="{{ data.csv_info.original }}">
+<input type="hidden" name="csv_info[save]" value="{{ data.csv_info.save }}">
+<input type="hidden" name="csv_info[mime]" value="{{ data.csv_info.mime }}">
+<input type="hidden" name="csv_info[path]" value="{{ data.csv_info.path }}">
+<span class="icon icon-file-text2"></span>
+{{ data.csv_info.original }}
+<ul>
+<li></li>
+</ul>
+{% endif %}
+<input type="file" id="csv_file" name="csv_file" value="{{ data.csv_file }}" class="w95" placeholder="">
+{% if '' != errors.csv_file %}
+<p class="error">{{ errors.csv_file }}</p>
+{% endif %}
+</td>
+</tr>
+</table>
+
+<div class="btn">
+{% if '' == data.id %}
+<input type="button" class="cancel" value="キャンセル" onclick="location.href='/mail';">
+<input type="button" value="新規登録する" onclick="setModeAndSubmit( 'commit', '', '' ); return false;">
+{% else %}
+<input type="button" class="cancel" value="キャンセル" onclick="location.href='/mail/detail/{{ data.id }}';">
+<input type="button" value="編集する" onclick="setModeAndSubmit( 'commit', '', '' ); return false;">
+{% endif %}
+</div>
+<form>
+
+{% endblock %}
+
+{% block js %}
+{{ parent() }}
+<script type="text/javascript" src="/js/mail_delivery.js?{{ time }}"></script>
+{% endblock %}

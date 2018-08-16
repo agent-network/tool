@@ -1,0 +1,92 @@
+{% extends "base.twig" %}
+  
+{% block content %}
+{{ parent() }}
+<h2><span class="icon icon-address-book"></span>{{ setting.subtitle }}</h2>
+
+<form action="" method="post">
+<input type="hidden" name="mode" value="search">
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<table class="search">
+<tr>
+<th class="w20">管理者ID</th>
+<td class="w30"><input type="text" id="search_id" name="search_id" value="{{ search.search_id }}"></td>
+<th class="w20">フリーワード</th>
+<td class="w30"><input type="text" id="search_keyword" name="search_keyword" value="{{ search.search_keyword }}"></td>
+</tr>
+</table>
+<div class="btn">
+<input type="submit" value="search">
+</div>
+</form>
+
+{% if data.total > 0 %}
+<div class="btn_area">
+<input type="button" class="warn" value="選択したものを削除する" onclick="setModeAndSubmit( 'delete', '', '' ); return false;">
+<input type="button" value="CSVダウンロード" onclick="setModeAndSubmit( 'csv_download', '', '' ); return false;">
+<input type="button" value="新規登録" onclick="location.href='/manage/detail/new';">
+</div>
+
+<form action="" name="form1" method="post">
+<input type="hidden" name="mode" value="">
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<table class="list">
+<tr>
+<th class="w5">
+<label class="checkbox">
+<input type="checkbox" id="all" name="all" value="1">
+</label>
+</th>
+<th class="w5">ID</th>
+<th class="w30">氏名</th>
+<th class="w45">メールアドレス</th>
+<th class="w15 last">権限</th>
+</tr>
+{% for item in data.list %}
+<tr {% if 0 == loop.index % 2 %}class="even"{% endif%} data-href="/manage/detail/{{ item.id }}">
+<td>
+{% if setting.user.id != item.id %}
+<label class="checkbox">
+<input type="checkbox" name="admin_user_ids[]" value="{{ item.id }}">
+</label>
+{% else %}
+---
+{% endif %}
+</td>
+<td>{{ item.id }}</td>
+<td>
+{{ item.last_name }}&nbsp;{{ item.first_name }}
+{% if '' != item.last_name_kana %}
+({{ item.last_name_kana }}&nbsp;{{ item.first_name_kana }})
+{% endif %}
+</td>
+<td>{{ item.email }}</td>
+<td>
+{% if config_get( 'product.auth.system' ) == item.level %}
+システム
+{% elseif config_get( 'product.auth.all' ) == item.level %}
+一般
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</table>
+</form>
+
+{% include 'common/pager.twig' %}
+{% endif %}
+
+{% if data.total == 0 %}
+<div class="message">
+登録されている情報はありません。
+</div>
+{% endif %}
+
+
+{% endblock %}
+
+{% block js %}
+{{ parent() }}
+<script type="text/javascript" src="/js/common.js?{{ time }}"></script>
+<script type="text/javascript" src="/js/manage.js?{{ time }}"></script>
+{% endblock %}

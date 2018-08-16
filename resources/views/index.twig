@@ -1,0 +1,35 @@
+{% extends "base.twig" %}
+
+{% block content %}
+{{ parent() }}
+<h2><span class="icon icon-home"></span>ダッシュボード</h2>
+
+<div id="dashboard">
+
+<div id="gmenu">
+<ul>
+<li>
+<a href="/questionnaire">
+<span class="icon icon-file-text2"></span>
+<p>アンケート</p></a>
+</li>
+<li>
+<a href="/mail">
+<span class="icon icon-envelop"></span>
+<p>メール配信</p></a>
+</li>
+<li class="last">
+<a href="/manage">
+<span class="icon icon-address-book"></span>
+<p>管理者</p></a>
+</li>
+</ul>
+</div>
+
+</div>
+{% endblock %}
+
+
+{% block js %}
+{{ parent() }}
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "base.twig" %}
+  
+{% block content %}
+{{ parent() }}
+{% if '' != admin_user_id %}
+<h2><span class="icon icon-address-book"></span>{{ data.last_name }}{{ data.first_name }}さんの情報 - 編集</h2>
+{% else %}
+<h2><span class="icon icon-address-book"></span>管理者情報 - 新規登録</h2>
+{% endif %}
+
+<form action="" name="form1" method="post">
+<input type="hidden" name="mode" value="new">
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<table class="detail">
+{% if '' != data.id %}
+<tr>
+<th>ID</th>
+<td>{{ data.id }}</td>
+</tr>
+{% endif %}
+<tr>
+<th>氏名</th>
+<td>
+<input type="text" id="last_name" name="last_name" value="{{ data.last_name }}" class="w30" placeholder="姓">
+<input type="text" id="first_name" name="first_name" value="{{ data.first_name }}" class="w30" placeholder="名">
+{% if '' != errors.last_name %}
+<p class="error">{{ errors.last_name }}</p>
+{% endif %}
+{% if '' != errors.first_name %}
+<p class="error">{{ errors.first_name }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>氏名(カナ)</th>
+<td>
+<input type="text" id="last_name_kana" name="last_name_kana" value="{{ data.last_name_kana }}" class="w30" placeholder="セイ">
+<input type="text" id="first_name_kana" name="first_name_kana" value="{{ data.first_name_kana }}" class="w30" placeholder="メイ">
+{% if '' != errors.last_name_kana %}
+<p class="error">{{ errors.last_name_kana }}</p>
+{% endif %}
+{% if '' != errors.first_name_kana %}
+<p class="error">{{ errors.first_name_kana }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>メールアドレス</th>
+<td>
+<input type="text" id="email" name="email" value="{{ data.email }}" class="w95" placeholder="">
+{% if '' != errors.email %}
+<p class="error">{{ errors.email }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>メールアドレス<br>(送信元1)</th>
+<td>
+<input type="text" id="sub_email01" name="sub_email01" value="{{ data.sub_email01 }}" class="w95" placeholder="">
+{% if '' != errors.sub_email01 %}
+<p class="error">{{ errors.sub_email01 }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>メールアドレス<br>(送信元2)</th>
+<td>
+<input type="text" id="sub_email02" name="sub_email02" value="{{ data.sub_email02 }}" class="w95" placeholder="">
+{% if '' != errors.sub_email02 %}
+<p class="error">{{ errors.sub_email02 }}</p>
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>権限</th>
+<td>
+<label class="radio_text">
+<input type="radio" name="level" value="{{ config_get( 'product.auth.level.system.id' ) }}"
+{% if config_get( 'product.auth.level.system.id' ) == data.level %}checked='checked'{% endif %}
+>{{ config_get( 'product.auth.level.system.name' ) }}
+</label>
+<label class="radio_text">
+<input type="radio" name="level" value="{{ config_get( 'product.auth.level.normal.id' ) }}"
+{% if config_get( 'product.auth.level.normal.id' ) == data.level %}checked='checked'{% endif %}
+>{{ config_get( 'product.auth.level.normal.name' ) }}
+</label>
+{% if '' != errors.level %}
+<p class="error">{{ errors.level }}</p>
+{% endif %}
+</td>
+</tr>
+</table>
+
+<div class="btn">
+{% if '' == data.id %}
+<input type="button" class="cancel" value="キャンセル" onclick="location.href='/manage';">
+<input type="button" value="新規登録する" onclick="setModeAndSubmit( 'new', '', '' ); return false;">
+{% else %}
+<input type="button" class="cancel" value="キャンセル" onclick="location.href='/manage/detail/{{ data.id }}';">
+<input type="button" value="編集する" onclick="setModeAndSubmit( 'edit', '', '' ); return false;">
+{% endif %}
+</div>
+<form>
+
+{% endblock %}
+
+{% block js %}
+{{ parent() }}
+<script type="text/javascript" src="/js/manage.js?{{ time }}"></script>
+{% endblock %}

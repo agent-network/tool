@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{ setting.title }}</title>
+<link rel="shortcut icon" href="/images/favicon.ico">
+{% block css %}
+<link rel="stylesheet" href="/css/style.css?{{ time }}">
+<link rel="stylesheet" href="/css/icomoon.css?{{ time }}">
+{% endblock %}
+</head>
+<body onload="{{ onload }}">
+
+<div id="container">
+
+{% block header %}
+{% include 'common/header.twig' %}
+{% endblock %}
+
+<div id="content">
+{% block content %}
+{% endblock %}
+</div>
+
+{% block footer %}
+{% include 'common/footer.twig' %}
+{% endblock %}
+
+</div>
+
+{% block js %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+{% endblock %}
+
+</body>
+</html>

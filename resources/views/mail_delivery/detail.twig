@@ -1,0 +1,159 @@
+{% extends "base.twig" %}
+  
+{% block content %}
+{{ parent() }}
+<h2><span class="icon icon-envelop"></span>メール配信詳細</h2>
+
+<form action="" name="form1" method="post">
+<input type="hidden" name="mode" value="commit">
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+<table class="detail">
+<tr>
+<th>ID</th>
+<td>{{ data.id }}</td>
+</tr>
+<tr>
+<th>送信元<br>メールアドレス</th>
+<td>
+{{ data.from_email }}
+</td>
+</tr>
+<tr>
+<th>タイトル</th>
+<td>
+{{ data.title }}
+</td>
+</tr>
+<tr>
+<th>本文</th>
+<td>
+{{ data.body|raw|nl2br }}
+</td>
+</tr>
+<tr>
+<th>メール形式</th>
+<td>
+{% if config_get( 'product.mail_delivery.delivery_type.text.id' ) == data.delivery_type %}
+{{ config_get( 'product.mail_delivery.delivery_type.text.name' ) }}
+{% else %}
+{{ config_get( 'product.mail_delivery.delivery_type.html.name' ) }}
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>配信設定</th>
+<td>
+{% if config_get( 'product.mail_delivery.reserve_flg.on.id' ) == data.reserve_flg %}
+{{ config_get( 'product.mail_delivery.reserve_flg.on.name' ) }}
+{% else %}
+{{ config_get( 'product.mail_delivery.reserve_flg.off.name' ) }}
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>予約配信日時</th>
+<td>
+{% if config_get( 'product.mail_delivery.reserve_flg.on.id' ) == data.reserve_flg %}
+{% for item in years %}
+{% if item.id == data.reserve_year %}{{ item.name }}{% endif %}
+{% endfor %}
+年
+{% for item in months %}
+{% if item.id == data.reserve_month %}{{ item.name }}{% endif %}
+{% endfor %}
+月
+{% for item in days %}
+{% if item.id == data.reserve_day %}{{ item.name }}{% endif %}
+{% endfor %}
+日
+{% for item in hours %}
+{% if item.id == data.reserve_hour %}{{ item.name }}{% endif %}
+{% endfor %}
+時
+{% for item in minutes %}
+{% if item.id == data.reserve_minute %}{{ item.name }}{% endif %}
+{% endfor %}
+分
+{% else %}
+---
+{% endif %}
+</td>
+</tr>
+
+<tr>
+<th>添付ファイル1</th>
+<td>
+{% if data.attachment_info[0] %}
+<span class="icon icon-file-empty"></span>
+{{ data.attachment_info[0].original }}
+{% else %}
+---
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>添付ファイル2</th>
+<td>
+{% if data.attachment_info[1] %}
+<span class="icon icon-file-empty"></span>
+{{ data.attachment_info[1].original }}
+{% else %}
+---
+{% endif %}
+</td>
+</tr>
+<tr>
+<th>添付ファイル3</th>
+<td>
+{% if data.attachment_info[2] %}
+<span class="icon icon-file-empty"></span>
+{{ data.attachment_info[2].original }}
+{% else %}
+---
+{% endif %}
+</td>
+</tr>
+
+<tr>
+<th>配信先CSVファイル</th>
+<td>
+<span class="icon icon-file-text2"></span>
+{{ data.csv_info.original }}
+</td>
+</tr>
+<tr>
+<th>ステータス</th>
+<td>
+{% if config_get( 'product.mail_delivery.delivery_status.edit.id' ) == data.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.edit.name' ) }}
+{% elseif config_get( 'product.mail_delivery.delivery_status.wait.id' ) == data.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.wait.name' ) }}
+{% elseif config_get( 'product.mail_delivery.delivery_status.progress.id' ) == data.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.progress.name' ) }}
+{% elseif config_get( 'product.mail_delivery.delivery_status.ok.id' ) == data.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.ok.name' ) }}
+{% elseif config_get( 'product.mail_delivery.delivery_status.cancel.id' ) == data.status %}
+{{ config_get( 'product.mail_delivery.delivery_status.cancel.name' ) }}
+{% endif %}
+</td>
+</tr>
+</table>
+
+<div class="btn">
+<input type="button" class="warn" value="削除する" onclick="setModeAndSubmit( 'delete', '', '' ); return false;">
+{% if config_get( 'product.mail_delivery.delivery_status.edit.id' ) == data.status %}
+<input type="button" value="編集する" onclick="location.href='/mail/edit/{{ data.id }}';">
+<input type="button" value="テスト配信" onclick="setModeAndSubmit( 'test_delivery', '', '' ); return false;">
+<input type="button" value="配信設定完了" onclick="setModeAndSubmit( 'complete', '', '' ); return false;">
+{% elseif config_get( 'product.mail_delivery.delivery_status.wait.id' ) == data.status %}
+<input type="button" value="キャンセル" onclick="setModeAndSubmit( 'cancel', '', '' ); return false;">
+{% endif %}
+</div>
+<form>
+
+{% endblock %}
+
+{% block js %}
+{{ parent() }}
+<script type="text/javascript" src="/js/mail_delivery.js?{{ time }}"></script>
+{% endblock %}

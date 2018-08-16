@@ -1,0 +1,35 @@
+{% if 1 < data.pager.max %}
+<div class="pager">
+<ul>
+{% if data.pager.prev > 0 %}
+<li><a href="{{ setting.pager_uri }}/{{ data.pager.prev }}">&lt;</a></li>
+{% else %}
+<li>&lt;</li>
+{% endif %}
+{% if data.pager.start >= data.pager.ave %}
+<li><a href="{{ setting.pager_uri }}">1</a></li>
+{% if data.pager.start > data.pager.ave %}
+<li>…</li>
+{% endif %}
+{% endif %}
+{% for i in data.pager.start..data.pager.end %}
+{% if i == data.pager.page %}
+<li><a href="{{ setting.pager_uri }}/{{ i }}" class="active">{{ i }}</a></li>
+{% else %}
+<li><a href="{{ setting.pager_uri }}/{{ i }}">{{ i }}</a></li>
+{% endif %}
+{% endfor %}
+{% if data.pager.max > data.pager.end %}
+{% if data.pager.max-1 > data.pager.end %}
+<li>…</li>
+{% endif %}
+<li><a href="{{ setting.pager_uri }}/{{ data.pager.max }}">{{ data.pager.max }}</a></li>
+{% endif %}
+{% if data.pager.next <= data.pager.max %}
+<li><a href="{{ setting.pager_uri }}/{{ data.pager.next }}">&gt;</a></li>
+{% else %}
+<li>&gt;</li>
+{% endif %}
+</ul>
+</div>
+{% endif %}
