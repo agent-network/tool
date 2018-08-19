@@ -262,7 +262,7 @@ class MailUtility
                     {
                         if ( !empty( $value ) && 'to1' == $key )
                         {
-                            $lind['send_flg'] = config( 'product.common.flag.on' );
+                            $line['send_flg'] = config( 'product.common.flag.on' );
                             $address_id = SMailDeliveryAddress::saveData( $arr_delivery_data['id'], $line );
                             if ( config( 'product.mail_delivery.delivery_type.html.id' ) == $arr_delivery_data['delivery_type'] )
                             {
