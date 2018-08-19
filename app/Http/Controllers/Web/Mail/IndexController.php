@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller as CommonController;
 
 use App\Eloquents\Mysql\SMailDelivery;
+use App\Eloquents\Mysql\SMailDeliveryAddress;
 
 use App\Utilities\CommonUtility;
 use App\Utilities\MailUtility;
