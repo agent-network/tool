@@ -7,7 +7,6 @@ use Illuminate\Console\Command;
 use Carbon\Carbon;
 
 use App\Eloquents\Mysql\SMailDelivery;
-use App\Eloquents\Mysql\SMailDeliveryAddress;
 
 use App\Utilities\MailUtility;
 
