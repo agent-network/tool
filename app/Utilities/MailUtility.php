@@ -278,7 +278,10 @@ class MailUtility
                     $arr_send['body'] = preg_replace( $match, $value, $arr_send['body'] );
                 }
             }
-            $arr_send['body'] = nl2br( $arr_send['body'], FALSE );
+            if ( config( 'product.mail_delivery.delivery_type.html.id' ) == $arr_delivery_data['delivery_type'] )
+            {
+                $arr_send['body'] = nl2br( $arr_send['body'], FALSE );
+            }
             $arr_send['attachment'] = $zipfile;
 
             self::sendRaw( $arr_send );
