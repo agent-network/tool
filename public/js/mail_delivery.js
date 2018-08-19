@@ -30,7 +30,7 @@ setModeAndSubmit = function( mode, keyname, keyid )
     switch ( mode )
     {
         case 'test_delivery':
-            if ( !window.confirm( 'テスト配信を行います。テストメールはログインしている方の\nメールアドレスへ配信します。よろしいですか？' ) )
+            if ( !window.confirm( 'テスト配信を行います。\nテストメールはCSVのtest欄にフラグの立っている行の\nメールアドレスへ配信します。よろしいですか？' ) )
             {
                 return;
             }

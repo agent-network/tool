@@ -124,7 +124,7 @@
 <th class="w10">配信設定</th>
 <th class="w10">予約配信日時</th>
 <th class="w10">配信完了日時</th>
-<th class="w10">開封/配信</th>
+<th class="w10">ダウンロード</th>
 <th class="w10">ステータス</th>
 </tr>
 {% for item in data.list %}
@@ -165,9 +165,8 @@
 {% endif %}
 </td>
 <td>
-{% if config_get( 'product.mail_delivery.delivery_status.ok.id' ) == item.status and
-      config_get( 'product.mail_delivery.delivery_type.html.id' ) == item.delivery_type %}
-{{ item.open_count }} / {{ item.delivery_count }}
+{% if config_get( 'product.mail_delivery.delivery_status.ok.id' ) == item.status %}
+<a href="javascript:void(0)" onclick="setModeAndSubmit( 'csv_download', 'mail_delivery_id', '{{ item.id }}' ); return false;">ダウンロード</a>
 {% else %}
 ---
 {% endif %}

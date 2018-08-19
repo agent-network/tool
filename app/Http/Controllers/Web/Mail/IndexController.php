@@ -33,7 +33,7 @@ class IndexController extends CommonController
     public function __construct()
     {
         parent::__construct();
-        self::$arr_year       = CommonUtility::getYear();
+        self::$arr_year       = CommonUtility::getYear( date( 'Y' ), date( 'Y', strtotime( 'next year' ) ) );
         self::$arr_month      = CommonUtility::getMonth();
         self::$arr_day        = CommonUtility::getDay();
         self::$arr_hour       = CommonUtility::getHour();
@@ -91,6 +91,11 @@ class IndexController extends CommonController
 
         $arr_mail = SMailDelivery::getListData( $page, $arr_search );
 
+        if ( 'csv_download' == $mode )
+        {
+            self::outputCsv( $arr_post['mail_delivery_id'] );
+        }
+
         return view( 'mail_delivery/index',
                      [
                          'setting'     => self::$setting,
@@ -125,6 +130,7 @@ class IndexController extends CommonController
             $template = 'mail_delivery/error';
         }
 
+        $onload = NULL;
         $mode = $request->input( 'mode' );
         $arr_post = self::convertData( $request->all() );
 
@@ -132,10 +138,12 @@ class IndexController extends CommonController
         {
             case 'test_delivery':
                 self::sendTestMail();
+                $onload = "alert( 'テスト配信が完了しました。' )";
                 break;
             case 'complete':
                 self::changeDeliveryStatus( config( 'product.mail_delivery.delivery_status.wait.id' ) );
                 self::$arr_mail['status'] = config( 'product.mail_delivery.delivery_status.wait.id' );
+                $onload = "alert( '配信設定が完了しました。' )";
                 break;
             case 'cancel':
                 self::changeDeliveryStatus( config( 'product.mail_delivery.delivery_status.cancel.id' ) );
@@ -151,6 +159,7 @@ class IndexController extends CommonController
 
         return view( $template,
                      [
+                         'onload'  => $onload,
                          'setting' => self::$setting,
                          'data'    => self::$arr_mail,
                          'years'   => self::$arr_year,
@@ -182,8 +191,8 @@ class IndexController extends CommonController
 
         $mode = $request->input( 'mode' );
         $arr_post = self::convertData( $request->all() );
-//        $arr_post['attachment'] = $request->file( 'attachment' );
-//        $arr_post['csv_file'] = $request->file( 'csv_file' );
+        $arr_post['attachment'] = $request->file( 'attachment' );
+        $arr_post['csv_file'] = $request->file( 'csv_file' );
 
         switch ( $mode )
         {
@@ -196,6 +205,12 @@ class IndexController extends CommonController
                 $arr_post = self::deleteFile( $arr_post );
                 // バリデーション
                 $result = self::validatorInputData( $arr_post );
+
+                // CSVファイルのエラーがある場合、アップされたファイルの削除処理
+                if ( isset( self::$arr_error['csv_file'] ) )
+                {   
+                    $arr_post = self::deleteCsvFile( $arr_post );
+                }
 
                 if ( $result )
                 {
@@ -374,8 +389,14 @@ class IndexController extends CommonController
         {
             foreach ( $data['attachment_delete'] as $key => $value )
             {
-                unlink( config( 'product.mail_delivery.common.temporary_path' ) . $data['attachment_info'][$key]['save'] );
-                unlink( config( 'product.mail_delivery.common.attachment_path' ) . $data['attachment_info'][$key]['save'] );
+                if ( is_file( config( 'product.mail_delivery.common.temporary_path' ) . $data['attachment_info'][$key]['save'] ) )
+                {
+                    unlink( config( 'product.mail_delivery.common.temporary_path' ) . $data['attachment_info'][$key]['save'] );
+                }
+                if ( is_file( config( 'product.mail_delivery.common.attachment_path' ) . $data['attachment_info'][$key]['save'] ) )
+                {
+                    unlink( config( 'product.mail_delivery.common.attachment_path' ) . $data['attachment_info'][$key]['save'] );
+                }
                 unset( $data['attachment_info'][$key] );
             }
         }
@@ -402,6 +423,30 @@ class IndexController extends CommonController
                 $data['csv_info']['mime']     = $data['csv_file']->getMimeType();
                 $data['csv_file']->move( config( 'product.mail_delivery.common.temporary_path' ), $save_name );
             }
+        }
+        return $data;
+    }
+
+
+    /**
+     * CSVファイル削除
+     *
+     * @param  array $data 対象配列データ
+     * @return array $data 対象配列データ
+     */
+    private static function deleteCsvFile( $data )
+    {
+        if ( isset( $data['csv_info'] ) )
+        {
+            if ( is_file( config( 'product.mail_delivery.common.temporary_path' ) . $data['csv_info']['save'] ) )
+            {
+                unlink( config( 'product.mail_delivery.common.temporary_path' ) . $data['csv_info']['save'] );
+            }
+            if ( is_file( config( 'product.mail_delivery.common.csv_path' ) . $data['csv_info']['save'] ) )
+            {
+                unlink( config( 'product.mail_delivery.common.csv_path' ) . $data['csv_info']['save'] );
+            }
+            unset( $data['csv_info'] );
         }
         return $data;
     }
@@ -456,14 +501,14 @@ class IndexController extends CommonController
             'csv_file.max'              => '配信先CSVファイルは32MB以下でアップロードしてください',
         ];
 
-        if ( isset( $data['attachment'] ) && is_array( $data['attachment'] ) )
-        {
-            foreach ( $data['attachment'] as $key => $value )
-            {
-                $rules['attachment.' . $key] = 'max:32000';
-                $messages['attachment.' . $key . '.max']   = '添付ファイルは32MB以下でアップロードしてください';
-            }
-        }
+//        if ( isset( $data['attachment'] ) && is_array( $data['attachment'] ) )
+//        {
+//            foreach ( $data['attachment'] as $key => $value )
+//            {
+//                $rules['attachment.' . $key] = 'max:32000';
+//                $messages['attachment.' . $key . '.max']   = '添付ファイルは32MB以下でアップロードしてください';
+//            }
+//        }
 
         $validator = Validator::make( $data, $rules, $messages );
         if ( $validator->fails() )
@@ -475,8 +520,14 @@ class IndexController extends CommonController
             }
         }
 
+        if ( 'validation.uploaded' == self::$arr_error['csv_file'] )
+        {
+            unset( self::$arr_error['csv_file'] );
+        }
+
         // 配信先CSVファイルの内容の最低限のフォーマットチェック
-        if ( !isset( self::$arr_error['csv_file'] ) )
+        if ( !isset( self::$arr_error['csv_file'] ) && isset( $data['csv_info']['save'] ) &&
+             is_file( config( 'product.mail_delivery.common.temporary_path' ) . $data['csv_info']['save'] ) )
         {
             $test_flg   = 0;
             $status_flg = 0;
@@ -521,6 +572,12 @@ class IndexController extends CommonController
             }
         }
 
+        // 上記を踏まえてまだエラーがある場合、アップされたファイルの削除処理
+        if ( isset( self::$arr_error['csv_file'] ) )
+        {
+            self::deleteCsvFile( $data );
+        }
+
         return empty( self::$arr_error ) ? TRUE : FALSE;
     }
 
@@ -547,5 +604,45 @@ class IndexController extends CommonController
     private static function changeDeliveryStatus( $status=NULL )
     {
         SMailDelivery::changeStatus( $status, self::$arr_mail['id'] );
+    }
+
+
+    /**
+     * CSV出力
+     *
+     * @param  integer mail_delivery_id メール配信ID
+     * @return void
+     */
+    private static function outputCsv( $mail_delivery_id )
+    {
+        $arr_mail = SMailDelivery::getDataById( $mail_delivery_id );
+
+        $arr_address_data = SMailDeliveryAddress::getListData( $mail_delivery_id );
+
+        $i = 0;
+        $arr_csv = [];
+        foreach ( $arr_address_data as $value )
+        {
+            $i++;
+            $arr = [];
+            $arr['no']         = $i;
+            $arr['id']         = $value['id'];
+            $arr['email']      = $value['email'];
+            $arr['last_name']  = $value['last_name'];
+            $arr['first_name'] = $value['first_name'];
+            $arr['send_flg']   = config( 'product.common.flag.on' ) == $value['send_flg'] ? '送信' : '未送信';
+            if ( config( 'product.mail_delivery.delivery_type.html.id' ) == $arr_mail['delivery_type'] )
+            {
+                $arr['open_flg']   = config( 'product.common.flag.on' ) == $value['open_flg'] ? '開封済' : '未開封';
+                $arr['open_date']  = $value['open_date'];
+            }
+            else
+            {
+                $arr['open_flg']  = '-';
+                $arr['open_date'] = '-';
+            }
+            $arr_csv[] = $arr;
+        }
+        FileUtility::writeCsv( $arr_csv, config( 'product.mail_delivery.csv.subject' ), 'mail_delivery_' . $mail_delivery_id . '.csv', FALSE );
     }
 }

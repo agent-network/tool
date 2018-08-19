@@ -20,6 +20,9 @@ class CreateSMailDeliveryAddressesTable extends Migration
                 $table->increments( 'id' );                               # ID
                 $table->integer( 'mail_delivery_id' )->nullable();        # メール配信ID 
                 $table->string( 'email', 128 )->nullable();               # 配信先メールアドレス
+                $table->string( 'last_name', 256 )->nullable();           # 氏名(姓)
+                $table->string( 'first_name', 256 )->nullable();          # 氏名(名)
+                $table->char( 'send_flg', 1 )->default( '0' );            # 送信フラグ 1:した 0:していない
                 $table->char( 'open_flg', 1 )->default( '0' );            # 開封フラグ 1:した 0:していない
                 $table->dateTime( 'open_date' )->nullable();              # 開封日時
                 $table->char( 'status', 1 )->default( '1' );              # ステータス
@@ -31,6 +34,7 @@ class CreateSMailDeliveryAddressesTable extends Migration
                 
                 $table->index( 'mail_delivery_id' );
                 $table->index( 'email' );
+                $table->index( 'send_flg' );
                 $table->index( 'open_flg' );
                 $table->index( 'status' );
                 $table->index( 'delete_flg' );

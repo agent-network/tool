@@ -202,8 +202,8 @@ class SMailDelivery extends Mysql
                 $arr_mail['reserve_year']   = $year;
                 $arr_mail['reserve_month']  = intval( $month );
                 $arr_mail['reserve_day']    = intval( $day );
-                $arr_mail['reserve_hour']   = intval( $hour );
-                $arr_mail['reserve_minute'] = intval( $minute );
+                $arr_mail['reserve_hour']   = strval( intval( $hour ) );
+                $arr_mail['reserve_minute'] = strval( intval( $minute ) );
             }
             else
             {

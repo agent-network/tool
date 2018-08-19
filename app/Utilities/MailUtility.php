@@ -262,7 +262,7 @@ class MailUtility
                     {
                         if ( !empty( $value ) && 'to1' == $key )
                         {
-                            $address_id = SMailDeliveryAddress::saveData( $arr_delivery_data['id'], $value );
+                            $address_id = SMailDeliveryAddress::saveData( $arr_delivery_data['id'], $line );
                             if ( config( 'product.mail_delivery.delivery_type.html.id' ) == $arr_delivery_data['delivery_type'] )
                             {
                                 $tag = preg_replace( '/{{id}}/', $address_id, config( 'product.mail_delivery.affiliate.tag' ) );
@@ -329,7 +329,8 @@ class MailUtility
             {
                 copy( config( 'product.mail_delivery.common.attachment_path' ) . $arr_delivery_data[$attachment_file],
                       config( 'product.mail_delivery.common.temporary_path' ) . $arr_delivery_data[$original_name] );
-                $arr_attachment[] = config( 'product.mail_delivery.common.temporary_path' ) . $arr_delivery_data[$original_name];
+                $arr_attachment[] = config( 'product.mail_delivery.common.temporary_path' )
+                                  . preg_replace( '/ /', '\ ', $arr_delivery_data[$original_name] );
             }
         }
 
